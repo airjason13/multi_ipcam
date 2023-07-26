@@ -7,15 +7,22 @@ import random
 from global_def import *
 from videocanvas import *
 from onvif_ipcam import *
+from threading import Timer
 
 class MainWindow(object):
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Infoboom Multi Ipcam")
         self.list_ip_cam = []
+        self.list_ip_cam = [-1 for i in range(256)]
+        self.discovery_thread = []
         for i in range(256):
-            test_thread = threading.Thread(target=self.search_ip_cam_device, args=(str(i),))
-            test_thread.start()
+            t = threading.Thread(target=self.search_ip_cam_device, args=(str(i),))
+            t.start()
+            self.discovery_thread.append(t)
+
+        self.check_discovery_status_timer = Timer(3, self.check_discovery_status)
+        self.check_discovery_status_timer.start()
         # resp = cam_device.start_get_device_info()
 
         '''
@@ -29,12 +36,33 @@ class MainWindow(object):
 
     def search_ip_cam_device(self, n):
         ip = "192.168.0." + n
-        print('[Info] in search_ipca_device, ip=', ip)
+        # print('[Info] in search_ipca_device, ip=', ip)
         cam = OnVifIpCam(ip=ip, port="80")
         cam_device = cam.try_to_connect()
-        print("[Info] cam_device:", cam_device)
+        # print("[Info] cam_device:", cam_device)
         if cam_device is not None:
-            self.list_ip_cam.append(cam_device)
+            print("[Info] found Ipcam, ip:", ip)
+            self.list_ip_cam[int(n)] = cam_device
+        else:
+            self.list_ip_cam[int(n)] = None
+
+    def check_discovery_status(self):
+        # b_discovery_end = True
+        for i in range(256):
+            if self.list_ip_cam[i] == -1:
+                self.check_discovery_status_timer = Timer(3, self.check_discovery_status)
+                self.check_discovery_status_timer.start()
+                print("[Info] check discovery status return False")
+                return False
+        print("[Info] check discovery status True")
+        for i in range(len(self.list_ip_cam)):
+            try:
+                if self.list_ip_cam[i] is None:
+                    self.list_ip_cam.pop(i)
+            except Exception as e:
+                pass
+        print('[Info] Final Ipcam device length : ', str(len(self.list_ip_cam)))
+        return True
 
     def resize(self, geometry_str):
         self.root.geometry(geometry_str)

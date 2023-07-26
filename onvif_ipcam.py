@@ -13,7 +13,8 @@ class OnVifIpCam:
 		try:
 			self.cam_device = ONVIFCamera(self.ip, self.port, self.user, self.port, "./wsdl")
 		except Exception as e:
-			print('[Error] ', e)
+			pass
+			#print('[Error] ', e)
 		return self.cam_device
 
 	def start_get_device_info(self):
