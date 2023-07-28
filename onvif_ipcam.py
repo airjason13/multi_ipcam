@@ -1,4 +1,8 @@
 from onvif import ONVIFCamera
+import utils.log_utils
+from global_def import *
+
+log = utils.log_utils.logging_init(__file__)
 
 
 class OnVifIpCam:
@@ -13,11 +17,12 @@ class OnVifIpCam:
 		self.cam_profiles = None
 		self.cam_encoder_configuration = None
 		self.stream_uri = []
+
 	def try_to_connect(self):
 		try:
 			self.cam_device = ONVIFCamera(self.ip, self.port, self.user, self.passwd, "./wsdl")
 		except Exception as e:
-			print('[Error] ', e)
+			log.debug('[Error] %s', e)
 			return None
 		return self.cam_device
 

@@ -1,5 +1,7 @@
 from enum import Enum
 
+APP_NAME = "multi_ipcam"
+
 # default ipcam preview size and label size
 default_image_width = 640
 default_image_height = 480
