@@ -92,7 +92,7 @@ class MainWindow(object):
 				self.check_discovery_status_timer.start()
 				print("[Info] check discovery status return False")
 				return False
-		print("[Info] check discovery status True")
+		log.debug("[Info] check discovery status True")
 		for i in range(len(self.list_discovery_ip_cam)):
 			try:
 				if self.list_discovery_ip_cam[i] is not None:
@@ -100,7 +100,7 @@ class MainWindow(object):
 			except Exception as e:
 				pass
 
-		print('[Info] Final Alive Ipcam device length : ', str(len(self.list_alive_ip_cam)))
+		log.debug('[Info] Final Alive Ipcam device length : %s', str(len(self.list_alive_ip_cam)))
 		self.discovery_status = DiscoveryStatus.DISCOVERY_END
 		self.discovery_label.destroy()
 
