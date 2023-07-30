@@ -23,4 +23,6 @@ if __name__ == '__main__':
     mw = MainWindow()
     mw.start()
 
+    exit(0)
+
 
