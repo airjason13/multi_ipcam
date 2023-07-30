@@ -2,6 +2,9 @@ from enum import Enum
 
 APP_NAME = "multi_ipcam"
 
+# Machine Network Interface Name
+Network_Interface_Name = "enp8s0"
+
 # default window size
 default_window_width = 1500
 default_window_height = 800

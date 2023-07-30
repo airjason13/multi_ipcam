@@ -1,12 +1,13 @@
+from threading import Timer
 from tkinter import *
 from tkinter import ttk
 import random
 from global_def import *
 from videocanvas import *
 from onvif_ipcam import *
-from threading import Timer
-import logging
+import utils.net_utils
 import utils.log_utils
+
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -25,6 +26,12 @@ class MainWindow(object):
         self.right_frame = ttk.Frame(self.root)
         self.big_frame.pack(side="left", expand=True)
         self.right_frame.pack(side="right", expand=True)
+
+        # Machine Network Interface Name
+        self.network_interface_name = Network_Interface_Name
+        self.ip = utils.net_utils.get_ip_address(self.network_interface_name)
+        log.info("self.network_interface_name : %s", self.network_interface_name)
+        log.info("self.ip : %s", self.ip)
 
         self.label_ip_cam_ip = []
 
@@ -49,13 +56,9 @@ class MainWindow(object):
         self.start_discovery_timer.start()
 
         self.ip_cam_vid = []
-        '''
-		self.vid1 = VideoCanvas(self.root, 0, "rtsp://192.168.0.12/v01", _row=0, _column=0)
 
-		self.vid2 = VideoCanvas(self.root, 1, "rtsp://192.168.0.13/v01", _row=0, _column=1)
-
-		self.vid3 = VideoCanvas(self.root, 2, "rtsp://192.168.0.14/v01", _row=1, _column=0)
-		'''
+    def start_ping_ipv4(self):
+        log.debug("start_ping")
 
     def search_ip_cam_device(self, n):
         ip = "192.168.0." + n
@@ -160,3 +163,4 @@ class MainWindow(object):
     def start(self):
         self.root.mainloop()
 
+    
