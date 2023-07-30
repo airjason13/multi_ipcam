@@ -30,8 +30,11 @@ class MainWindow(object):
         # Machine Network Interface Name
         self.network_interface_name = Network_Interface_Name
         self.ip = utils.net_utils.get_ip_address(self.network_interface_name)
-        log.info("self.network_interface_name : %s", self.network_interface_name)
+        '''log.info("self.network_interface_name : %s", self.network_interface_name)
         log.info("self.ip : %s", self.ip)
+        tmp_ip = self.ip.split(".")
+        test_ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + "55"
+        log.debug("test_ip :%s", test_ip)'''
 
         self.label_ip_cam_ip = []
 
@@ -61,7 +64,9 @@ class MainWindow(object):
         log.debug("start_ping")
 
     def search_ip_cam_device(self, n):
-        ip = "192.168.0." + n
+        # ip = "192.168.0." + n
+        tmp_ip = self.ip.split(".")
+        ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
         log.debug('in search_ipcam_device, ip= %s', ip)
         cam = OnVifIpCam(ip=ip, port="80")
         cam_device = cam.try_to_connect()
@@ -163,4 +168,3 @@ class MainWindow(object):
     def start(self):
         self.root.mainloop()
 
-    
