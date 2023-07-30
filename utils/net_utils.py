@@ -4,7 +4,7 @@ import struct
 import utils.log_utils
 from global_def import *
 
-log = utils.log_utils.logging_init(__file__)
+# log = utils.log_utils.logging_init(__file__)
 
 
 def get_ip_address(ifname):

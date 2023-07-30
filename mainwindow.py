@@ -1,3 +1,4 @@
+import os
 from threading import Timer
 from tkinter import *
 from tkinter import ttk
@@ -9,7 +10,7 @@ import utils.net_utils
 import utils.log_utils
 
 
-log = utils.log_utils.logging_init(__file__)
+# log = utils.log_utils.logging_init(__file__)
 
 
 class MainWindow(object):
@@ -45,35 +46,88 @@ class MainWindow(object):
         self.discovery_label.pack(fill="both", expand=True)
         self.discovery_label.after(100, self.show_discovery_image, 0)
 
+        self.list_ping_ipv4 = [-1 for i in range(256)]
+        # self.ping_ipv4_thread = []
+        self.start_ping_ipv4_timer = Timer(1, self.start_ping_ipv4)  # start discovery after 2 secs
+        self.start_ping_ipv4_timer.start()
+        self.check_ping_status_timer = Timer(3, self.check_ping_status)
+        self.check_ping_status_timer.start()
+
         # self.list_discovery_ip_cam = []
         self.list_discovery_ip_cam = [-1 for i in range(256)]
         self.list_alive_ip_cam = []
-        self.discovery_thread = []
+        # self.discovery_thread = []
         self.discovery_status = DiscoveryStatus.DISCOVERY_NOT_YET  # Discovery Status in global_def
 
+        self.check_discovery_status_timer = None
+        self.start_discovery_timer = None
+        '''
         # start check discovery status after 3 secs
         self.check_discovery_status_timer = Timer(3, self.check_discovery_status)
         self.check_discovery_status_timer.start()
-        # resp = cam_device.start_get_device_info()
+        
         self.start_discovery_timer = Timer(2, self.start_discovery)  # start discovery after 2 secs
         self.start_discovery_timer.start()
+        '''
 
         self.ip_cam_vid = []
 
+    def check_ping_status(self):
+        for i in range(256):
+            if self.list_ping_ipv4[i] == -1:
+                self.check_ping_status_timer = Timer(3, self.check_ping_status)
+                self.check_ping_status_timer.start()
+                print("[Info] check discovery status return False")
+                return False
+        log.debug("Ping Ipv4 finished, return True")
+
+        for i in range(len(self.list_ping_ipv4)):
+            if "Not Exists" in self.list_ping_ipv4[i]:
+                pass
+            else:
+                log.debug("self.list_ping_ipv4[%d] : %s", i, self.list_ping_ipv4[i])
+        self.check_discovery_status_timer = Timer(3, self.check_discovery_status)
+        self.check_discovery_status_timer.start()
+
+        self.start_discovery_timer = Timer(2, self.start_discovery)  # start discovery after 2 secs
+        self.start_discovery_timer.start()
+        return True
+
+    def ping_ipv4(self, n):
+        tmp_ip = self.ip.split(".")
+        ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
+        # log.debug('in ping_ipv4, ip= %s', ip)
+        process = os.popen("ping -c 1 " + ip)
+        ret = process.read()
+        process.close()
+        # log.debug("ping ipv4 %s, ret :%s", ip, ret)
+        if "ttl" in ret:  # ip exist and could ping
+            self.list_ping_ipv4[int(n)] = ip
+        else:
+            self.list_ping_ipv4[int(n)] = "IP Not Exists"
+
     def start_ping_ipv4(self):
         log.debug("start_ping")
+        for i in range(256):
+            t = threading.Thread(target=self.ping_ipv4, args=(str(i),))
+            t.start()
 
     def search_ip_cam_device(self, n):
+        if "Not Exists" in self.list_ping_ipv4[int(n)]:
+            self.list_discovery_ip_cam[int(n)] = None
+            log.debug("%s return")
+            return
         # ip = "192.168.0." + n
         tmp_ip = self.ip.split(".")
         ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
+
         log.debug('in search_ipcam_device, ip= %s', ip)
-        cam = OnVifIpCam(ip=ip, port="80")
-        cam_device = cam.try_to_connect()
+        tmp_cam = OnVifIpCam(ip=ip, port="80")
+        cam_device = tmp_cam.try_to_connect()
 
         if cam_device is not None:
             log.debug("[Info] found Ip_cam, ip: %s", ip)
-            self.list_discovery_ip_cam[int(n)] = cam
+            self.list_discovery_ip_cam[int(n)] = tmp_cam
         else:
             self.list_discovery_ip_cam[int(n)] = None
 

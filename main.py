@@ -17,7 +17,7 @@ from mainwindow import MainWindow
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    log = utils.log_utils.logging_init(__file__)
+
     log.info('Main')
 
     mw = MainWindow()
