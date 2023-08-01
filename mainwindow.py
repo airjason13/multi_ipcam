@@ -97,12 +97,15 @@ class MainWindow(object):
         tmp_ip = self.ip.split(".")
         ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
         # log.debug('in ping_ipv4, ip= %s', ip)
-        process = os.popen("ping -c 1 " + ip)
+        # process = os.popen("ping -c 1 " + ip)
+
+        process = os.popen("nc -vz -w 1 " + ip + " " + "554 2>&1")
         ret = process.read()
         process.close()
         # log.debug("ping ipv4 %s, ret :%s", ip, ret)
-        if "ttl" in ret:  # ip exist and could ping
+        if "succeeded" in ret:  # ip exist and could ping
             self.list_ping_ipv4[int(n)] = ip
+            log.debug("ping ipv4 %s, ret :%s", ip, ret)
         else:
             self.list_ping_ipv4[int(n)] = "IP Not Exists"
 
