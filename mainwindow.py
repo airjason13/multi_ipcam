@@ -12,7 +12,6 @@ import utils.ffmpeg_utils
 from rtsp_server import *
 
 
-
 class MainWindow(object):
     def __init__(self):
         self.root = tk.Tk()
@@ -22,6 +21,10 @@ class MainWindow(object):
         self.root.tk.call("source", "azure.tcl")
         self.root.tk.call("set_theme", "dark")
         self.root.title("Infoboom Multi IpCam")
+
+        # Kill ffmpeg process first
+        utils.ffmpeg_utils.kill_all_ffmpeg_process()
+
         # self.big_frame = ttk.Frame(self.root)
         # self.big_frame.pack(fill="both", expand=True)
         self.big_frame = ttk.Frame(self.root)
@@ -34,6 +37,7 @@ class MainWindow(object):
         self.rtsp_server = RtspServerProcess()
         self.rtsp_server.terminate()
         self.rtsp_server.launch_server()
+        log.debug("self.rtsp_server.i_pid : %d", self.rtsp_server.i_pid)
 
         # Machine Network Interface Name
         self.network_interface_name = Network_Interface_Name
@@ -90,8 +94,6 @@ class MainWindow(object):
     def ping_ipv4(self, n):
         tmp_ip = self.ip.split(".")
         ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
-        # log.debug('in ping_ipv4, ip= %s', ip)
-        # process = os.popen("ping -c 1 " + ip)
 
         process = os.popen("nc -vz -w 1 " + ip + " " + "554 2>&1")
         ret = process.read()
@@ -112,7 +114,6 @@ class MainWindow(object):
     def search_ip_cam_device(self, n):
         if "Not Exists" in self.list_ping_ipv4[int(n)]:
             self.list_discovery_ip_cam[int(n)] = None
-            # log.debug("%s return")
             return
         # ip = "192.168.0." + n
         tmp_ip = self.ip.split(".")
@@ -178,7 +179,10 @@ class MainWindow(object):
 
         # test ffmpeg parse stream
         utils.ffmpeg_utils.rtsp_parser_streaming()
-
+        preview_frame_pos_x = self.root.winfo_x() + self.right_frame.winfo_x()
+        preview_frame_pos_y = self.root.winfo_y() + self.right_frame.winfo_y()
+        utils.ffmpeg_utils.x11grab_stream(self.right_frame.winfo_width(), self.right_frame.winfo_height(),
+                                          src_x=preview_frame_pos_x, src_y=preview_frame_pos_y)
         return True
 
     def adjust_preview_frame(self):
@@ -233,14 +237,14 @@ class MainWindow(object):
         self.root.geometry(geometry_str)
         width = geometry_str.split("x")[0]
         while True:
-            log.debug("%d ,%d", int(self.root.winfo_width()), int(width))
+            # log.debug("%d ,%d", int(self.root.winfo_width()), int(width))
             if str(self.root.winfo_width()) == width:
                 break
 
     def on_window_resize(self, event):
         width = event.width
         height = event.height
-        log.debug("self.right_frame.winfo_width() = %d", self.right_frame.winfo_width())
+        # log.debug("self.right_frame.winfo_width() = %d", self.right_frame.winfo_width())
         # log.debug("window position : %d, %d", self.root.winfo_x(), self.root.winfo_y())
         # log.debug("window size :%dx%d", width, height)
 

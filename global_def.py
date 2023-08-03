@@ -50,3 +50,7 @@ Streaming_Video_Width = 1280
 Streaming_Video_Height = 720
 
 Default_Rtsp_Stream_Name = "av01"
+
+Default_Encode_Factor = "h264"
+Default_Video_BitRate = "6000k"
+
