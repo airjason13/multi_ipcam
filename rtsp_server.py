@@ -18,10 +18,12 @@ class RtspServerProcess:
 
 		# launch_cmd = "/bin/sh /home/venom/Downloads/test_rtsp_server.sh " + os.getcwd() + "/executable/ " + "2>&1"
 		# os.popen(launch_cmd)
-		launch_cmd = "nohup /home/venom/Downloads/test_rtsp_server.sh"
+		# launch_cmd = "nohup /home/venom/Downloads/test_rtsp_server.sh"
+		launch_cmd = ("nohup" + str_blank + os.getcwd() + "/executable/test_rtsp_server.sh" + str_blank
+		              + os.getcwd() + "/executable/")
+		log.debug("launch_cmd :%s", launch_cmd)
 		self.process = subprocess.Popen(launch_cmd, shell=True)
 		self.i_pid = int(self.process.pid)
-		# self.i_pid = int(os.popen("pgrep mediamtx").read())
 		log.debug("self.pid : %d", self.i_pid)
 
 	def get_pid(self):
