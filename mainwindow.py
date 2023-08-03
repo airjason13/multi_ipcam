@@ -8,9 +8,7 @@ from videocanvas import *
 from onvif_ipcam import *
 import utils.net_utils
 import utils.log_utils
-
-
-# log = utils.log_utils.logging_init(__file__)
+from rtsp_server import *
 
 
 class MainWindow(object):
@@ -28,14 +26,14 @@ class MainWindow(object):
         self.big_frame.pack(side="left", expand=True)
         self.right_frame.pack(side="right", expand=True)
 
+        # Rtsp Server
+        self.rtsp_server = RtspServerProcess()
+        self.rtsp_server.terminate()
+        self.rtsp_server.launch_server()
+
         # Machine Network Interface Name
         self.network_interface_name = Network_Interface_Name
         self.ip = utils.net_utils.get_ip_address(self.network_interface_name)
-        '''log.info("self.network_interface_name : %s", self.network_interface_name)
-        log.info("self.ip : %s", self.ip)
-        tmp_ip = self.ip.split(".")
-        test_ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + "55"
-        log.debug("test_ip :%s", test_ip)'''
 
         self.label_ip_cam_ip = []
 
@@ -61,14 +59,6 @@ class MainWindow(object):
 
         self.check_discovery_status_timer = None
         self.start_discovery_timer = None
-        '''
-        # start check discovery status after 3 secs
-        self.check_discovery_status_timer = Timer(3, self.check_discovery_status)
-        self.check_discovery_status_timer.start()
-        
-        self.start_discovery_timer = Timer(2, self.start_discovery)  # start discovery after 2 secs
-        self.start_discovery_timer.start()
-        '''
 
         self.ip_cam_vid = []
 
@@ -118,13 +108,13 @@ class MainWindow(object):
     def search_ip_cam_device(self, n):
         if "Not Exists" in self.list_ping_ipv4[int(n)]:
             self.list_discovery_ip_cam[int(n)] = None
-            log.debug("%s return")
+            # log.debug("%s return")
             return
         # ip = "192.168.0." + n
         tmp_ip = self.ip.split(".")
         ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
 
-        log.debug('in search_ipcam_device, ip= %s', ip)
+        # log.debug('in search_ipcam_device, ip= %s', ip)
         tmp_cam = OnVifIpCam(ip=ip, port="80")
         cam_device = tmp_cam.try_to_connect()
 

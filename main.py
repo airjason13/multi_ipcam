@@ -10,14 +10,13 @@ from global_def import *
 from videocanvas import *
 from onvif_ipcam import *
 from threading import Timer
-import logging
+import os
 import utils.log_utils
 from mainwindow import MainWindow
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-
     log.info('Main')
 
     mw = MainWindow()
