@@ -15,7 +15,10 @@ from rtsp_server import *
 class MainWindow(object):
     def __init__(self):
         self.root = tk.Tk()
+
+        # window resize and move callback
         self.root.bind("<Configure>", self.on_window_resize)
+
         self.root.config(bg="black")
         self.root.geometry("500x282")
         self.root.tk.call("source", "azure.tcl")
@@ -25,8 +28,6 @@ class MainWindow(object):
         # Kill ffmpeg process first
         utils.ffmpeg_utils.kill_all_ffmpeg_process()
 
-        # self.big_frame = ttk.Frame(self.root)
-        # self.big_frame.pack(fill="both", expand=True)
         self.big_frame = ttk.Frame(self.root)
         self.right_frame = ttk.Frame(self.root)
         self.big_frame.pack(side="left", expand=True)
@@ -223,7 +224,8 @@ class MainWindow(object):
             return default_image_width, default_image_height
         else:
             # This needs to be implemented
-            return int((default_window_width - right_frame_width)/max_column), int((default_window_height - 200)/max_row)
+            return int((right_frame_width) / max_column), int((right_frame_height) / max_row)
+            # return int((default_window_width - right_frame_width)/max_column), int((default_window_height - 200)/max_row)
 
     def get_max_row_and_column(self):
         length = len(self.list_alive_ip_cam)

@@ -44,7 +44,7 @@ class OnVifIpCam:
 		except Exception as e:
 			log.debug("Exception %s", e)
 		self.media2_service = media2_service
-		log.info("self.media2_service %s:", self.media2_service)
+		# log.info("self.media2_service %s:", self.media2_service)
 		return media2_service
 
 	def get_cam_profiles(self):
@@ -56,7 +56,7 @@ class OnVifIpCam:
 		except Exception as e:
 			log.debug("Exception %s", e)
 		self.cam_profiles = cam_profiles
-		log.info("[Info] self.cam_profiles :%s", self.cam_profiles)
+		# log.info("[Info] self.cam_profiles :%s", self.cam_profiles)
 		return cam_profiles
 
 	def get_cam_encoder_configuration(self):
@@ -66,7 +66,7 @@ class OnVifIpCam:
 		except Exception as e:
 			log.debug("Exception %s", e)
 		self.cam_encoder_configuration = cam_encoder_configuration
-		log.info("self.cam_encoder_configuration :%s", self.cam_encoder_configuration)
+		# log.info("self.cam_encoder_configuration :%s", self.cam_encoder_configuration)
 		return cam_encoder_configuration
 
 	def get_stream_uris(self):

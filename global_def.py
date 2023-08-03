@@ -9,7 +9,7 @@ str_blank = " "
 log = utils.log_utils.logging_init(__file__)
 
 # Machine Network Interface Name
-Network_Interface_Name = "enp2s0"
+Network_Interface_Name = "enp8s0"
 
 # default window size
 default_window_width = 1500
@@ -52,5 +52,5 @@ Streaming_Video_Height = 720
 Default_Rtsp_Stream_Name = "av01"
 
 Default_Encode_Factor = "h264"
-Default_Video_BitRate = "6000k"
+Default_Video_BitRate = "2000k"
 
