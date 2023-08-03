@@ -22,11 +22,12 @@ class RtspServerProcess:
 		return self.i_pid
 
 	def terminate(self):
+		log.debug("terminate all mediamtx first!")
 		if self.i_pid is None:
 			log.debug("rtsp server pid is None")
 		else:
 			os.kill(self.i_pid, -9)
-			
+
 		if os.popen("pgrep mediamtx").read() is not None:
 			log.debug(" process mediamtx : %s", os.popen("pgrep mediamtx").read())
 			os.popen("pkill mediamtx")

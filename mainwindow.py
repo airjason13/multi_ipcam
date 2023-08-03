@@ -8,14 +8,17 @@ from videocanvas import *
 from onvif_ipcam import *
 import utils.net_utils
 import utils.log_utils
+import utils.ffmpeg_utils
 from rtsp_server import *
+
 
 
 class MainWindow(object):
     def __init__(self):
         self.root = tk.Tk()
-        # self.root.config(bg="black")
-        self.root.geometry("640x480")
+        self.root.bind("<Configure>", self.on_window_resize)
+        self.root.config(bg="black")
+        self.root.geometry("500x282")
         self.root.tk.call("source", "azure.tcl")
         self.root.tk.call("set_theme", "dark")
         self.root.title("Infoboom Multi IpCam")
@@ -25,6 +28,7 @@ class MainWindow(object):
         self.right_frame = ttk.Frame(self.root)
         self.big_frame.pack(side="left", expand=True)
         self.right_frame.pack(side="right", expand=True)
+        self.right_frame.config(width=1280, height=720)
 
         # Rtsp Server
         self.rtsp_server = RtspServerProcess()
@@ -161,19 +165,35 @@ class MainWindow(object):
         self.discovery_label.destroy()
 
         # ipcam ip label
-        label_ip_cam_ip = tk.Label(self.big_frame, text="Alive IP Cam")
+        label_ip_cam_ip = tk.Label(self.big_frame, text="Alive IP Cam:")
         label_ip_cam_ip.pack()
-
-        # show ip in left
+        # show ip in left frame
         for i in range(len(self.list_alive_ip_cam)):
             label_ip_cam_ip = tk.Label(self.big_frame, text=self.list_alive_ip_cam[i].ip)
             label_ip_cam_ip.pack()
             self.label_ip_cam_ip.append(label_ip_cam_ip)
 
-        # max_row, max_column = self.get_max_row_and_column(len(self.list_alive_ip_cam))
+        # show ip in left frame
+        self.adjust_preview_frame()
+
+        # test ffmpeg parse stream
+        utils.ffmpeg_utils.rtsp_parser_streaming()
+
+        return True
+
+    def adjust_preview_frame(self):
+        # need to adjust mainwindow geo first
+        geo = str(default_window_width) + "x" + str(default_window_height)
+        self.resize(geo)
+
+        self.right_frame.config(width=1280, height=720)
+
+        log.debug("self.right_frame.winfo_width() = %d", self.right_frame.winfo_width())
+
+        # calculate preview canvas size
         max_row, max_column = self.get_max_row_and_column()
         tmp_canvas_preview_width, tmp_canvas_preview_height = self.get_preview_canvas_width_height(max_row, max_column)
-        log.debug("preview_width = %d, preview_height = %d\n", tmp_canvas_preview_width, tmp_canvas_preview_height )
+        log.debug("preview_width = %d, preview_height = %d\n", tmp_canvas_preview_width, tmp_canvas_preview_height)
         tmp_row = 0
         tmp_column = 0
         # start preview here??
@@ -191,15 +211,15 @@ class MainWindow(object):
                 tmp_column = 0
             self.ip_cam_vid.append(vid1)
 
-        geo = str(default_window_width) + "x" + str(default_window_height)
-        self.resize(geo)
-        return True
-
     def get_preview_canvas_width_height(self, max_row, max_column):
+        right_frame_width = self.right_frame.winfo_width()
+        right_frame_height = self.right_frame.winfo_height()
+        log.debug("right_frame_width :%d, right_frame_height:%d", right_frame_width, right_frame_height)
         if max_row < 2:
             return default_image_width, default_image_height
         else:
-            return int((default_window_width - 300)/max_column), int((default_window_height - 200)/max_row)
+            # This needs to be implemented
+            return int((default_window_width - right_frame_width)/max_column), int((default_window_height - 200)/max_row)
 
     def get_max_row_and_column(self):
         length = len(self.list_alive_ip_cam)
@@ -211,6 +231,18 @@ class MainWindow(object):
 
     def resize(self, geometry_str):
         self.root.geometry(geometry_str)
+        width = geometry_str.split("x")[0]
+        while True:
+            log.debug("%d ,%d", int(self.root.winfo_width()), int(width))
+            if str(self.root.winfo_width()) == width:
+                break
+
+    def on_window_resize(self, event):
+        width = event.width
+        height = event.height
+        log.debug("self.right_frame.winfo_width() = %d", self.right_frame.winfo_width())
+        # log.debug("window position : %d, %d", self.root.winfo_x(), self.root.winfo_y())
+        # log.debug("window size :%dx%d", width, height)
 
     def start(self):
         self.root.mainloop()
