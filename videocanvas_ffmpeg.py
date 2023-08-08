@@ -38,6 +38,7 @@ class VideoCanvasFFMpeg(tk.Frame):
     def video_capture_process(self):
         scale_factor = "scale=" + str(self.preview_width) + ":" + str(self.preview_height)
         command = [FFMPEG_BIN,
+                   '-rtsp_transport', 'tcp',
                    '-i', self.video_src,
                    '-f', 'image2pipe',
                    '-pix_fmt', 'rgb24',

@@ -69,6 +69,7 @@ def forward_rtsp_src_to_parser(src_list, video_bitrate=Default_Video_BitRate,
     ffmpeg_cmd = [FFMPEG_BIN,
                   '-hwaccel', 'auto',
                   '-re',
+                  '-rtsp_transport', 'tcp',
                   ]
     # handle input src
     input_param = []
