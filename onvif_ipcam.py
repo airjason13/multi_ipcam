@@ -79,11 +79,11 @@ class OnVifIpCam:
 			cam_temp = self.media2_service.create_type('GetStreamUri')
 			cam_temp.ProfileToken = token
 			cam_temp.StreamSetup = {'Stream': 'RTP-Unicast', 'Transport': {'Protocol': 'RTSP'}}
-			log.info("stream_uri :%s", self.media2_service.GetStreamUri(cam_temp))
+			# log.info("stream_uri :%s", self.media2_service.GetStreamUri(cam_temp))
 			self.stream_uri.append(self.media2_service.GetStreamUri(cam_temp))
 
 		for i in range(len(self.stream_uri)):
-			log.info("[Info] rtsp stream uri :%s ", self.stream_uri[i]['Uri'])
+			# log.info("[Info] rtsp stream uri :%s ", self.stream_uri[i]['Uri'])
 			uris.append(self.stream_uri[i]['Uri'])
 		return uris
 

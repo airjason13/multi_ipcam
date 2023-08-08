@@ -5,6 +5,7 @@ from tkinter import ttk
 import random
 from global_def import *
 from videocanvas import *
+from videocanvas_ffmpeg import *
 from onvif_ipcam import *
 import utils.net_utils
 import utils.log_utils
@@ -180,10 +181,18 @@ class MainWindow(object):
 
         # test ffmpeg parse stream
         utils.ffmpeg_utils.rtsp_parser_streaming()
-        preview_frame_pos_x = self.root.winfo_x() + self.right_frame.winfo_x()
+        '''preview_frame_pos_x = self.root.winfo_x() + self.right_frame.winfo_x()
         preview_frame_pos_y = self.root.winfo_y() + self.right_frame.winfo_y()
         utils.ffmpeg_utils.x11grab_stream(self.right_frame.winfo_width(), self.right_frame.winfo_height(),
-                                          src_x=preview_frame_pos_x, src_y=preview_frame_pos_y)
+                                          src_x=preview_frame_pos_x, src_y=preview_frame_pos_y)'''
+
+        # test forwarding directly
+        src_list = []
+        for i in range(len(self.list_alive_ip_cam)):
+            src_list.append(self.list_alive_ip_cam[i].get_stream_uris()[1])
+
+        log.debug("%s", src_list)
+        utils.ffmpeg_utils.forward_rtsp_src_to_parser(src_list)
         return True
 
     def adjust_preview_frame(self):
@@ -207,9 +216,13 @@ class MainWindow(object):
             self.list_alive_ip_cam[n].get_media2_service()
             self.list_alive_ip_cam[n].get_cam_encoder_configuration()
 
-            vid1 = VideoCanvas(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
+            vid1 = VideoCanvasFFMpeg(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
                                preview_width=tmp_canvas_preview_width, preview_height=tmp_canvas_preview_height,
                                _row=tmp_row, _column=tmp_column)
+            '''vid1 = VideoCanvas(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
+                                     preview_width=tmp_canvas_preview_width, preview_height=tmp_canvas_preview_height,
+                                     _row=tmp_row, _column=tmp_column)'''
+
             tmp_column += 1
             if tmp_column >= max_column:
                 tmp_row += 1
@@ -224,8 +237,7 @@ class MainWindow(object):
             return default_image_width, default_image_height
         else:
             # This needs to be implemented
-            return int((right_frame_width) / max_column), int((right_frame_height) / max_row)
-            # return int((default_window_width - right_frame_width)/max_column), int((default_window_height - 200)/max_row)
+            return int(right_frame_width / max_column), int(right_frame_height / max_row)
 
     def get_max_row_and_column(self):
         length = len(self.list_alive_ip_cam)

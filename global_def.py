@@ -54,3 +54,6 @@ Default_Rtsp_Stream_Name = "av01"
 Default_Encode_Factor = "h264"
 Default_Video_BitRate = "2000k"
 
+
+FFMPEG_BIN = "ffmpeg"
+
