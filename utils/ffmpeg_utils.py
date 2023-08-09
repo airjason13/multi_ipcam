@@ -3,7 +3,7 @@ import os
 from global_def import *
 import subprocess
 
-pip_stream_id_arr = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+pip_stream_id_arr = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
 
 
 def kill_all_ffmpeg_process():
@@ -17,8 +17,8 @@ def rtsp_parser_streaming(src_ip=Parser_Src_Ip, src_port=Parser_Src_Port,
     if src_ip is None or src_port is None or dst_ip is None or dst_port is None:
         log.debug("ip/port cannot be none")
         return None
-    ffmpeg_cmd = ("ffmpeg -re -i udp://" + src_ip + ":" + src_port + "?overrun_nonfatal=1"
-                  + str_blank + "-b:v" + str_blank + video_bitrate + str_blank
+    ffmpeg_cmd = ("ffmpeg -i udp://" + src_ip + ":" + src_port + "?overrun_nonfatal=1"
+            + str_blank + "-c:v" + str_blank + "copy" + str_blank + "-b:v" + str_blank + video_bitrate + str_blank
                   + "-f rtsp" + str_blank + "rtsp://" + dst_ip + ":" + dst_port + "/" + stream_name + str_blank + "&")
     log.debug("rtsp_parser_streaming ffmpeg_cmd : %s", ffmpeg_cmd)
     process = subprocess.Popen(ffmpeg_cmd, shell=True)
@@ -71,13 +71,11 @@ def forward_rtsp_src_to_parser(src_list, video_bitrate=Default_Video_BitRate,
     max_row, max_column = get_max_row_and_column(number_of_input)
     ffmpeg_cmd = [FFMPEG_BIN,
                   '-hwaccel', 'auto',
-                  '-re',
-                  '-rtsp_transport', 'tcp',
                   ]
     # handle input src
     input_param = []
     for i in range(number_of_input):
-        tmp_input = ['-i', src_list[i]]
+        tmp_input = ['-rtsp_transport', 'tcp', '-i', src_list[i]]
         input_param += (tmp_input)
     log.debug("input_param = %s", input_param)
 

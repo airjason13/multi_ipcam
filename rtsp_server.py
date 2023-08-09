@@ -14,12 +14,12 @@ class RtspServerProcess:
 
 	def launch_server(self):
 		log.debug("")
-		self.terminate()
+		# self.terminate()
 
 		# launch_cmd = "/bin/sh /home/venom/Downloads/test_rtsp_server.sh " + os.getcwd() + "/executable/ " + "2>&1"
 		# os.popen(launch_cmd)
 		# launch_cmd = "nohup /home/venom/Downloads/test_rtsp_server.sh"
-		launch_cmd = ("nohup" + str_blank + os.getcwd() + "/executable/test_rtsp_server.sh" + str_blank
+		launch_cmd = (os.getcwd() + "/executable/test_rtsp_server.sh" + str_blank
 		              + os.getcwd() + "/executable/")
 		log.debug("launch_cmd :%s", launch_cmd)
 		self.process = subprocess.Popen(launch_cmd, shell=True)

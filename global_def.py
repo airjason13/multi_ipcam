@@ -12,7 +12,7 @@ str_blank = " "
 NONE_IPCAM_PREVIEW_SRC = os.getcwd() + "/material/error_animation.mp4"
 
 # Machine Network Interface Name
-Network_Interface_Name = "enp8s0"
+Network_Interface_Name = "eno1"
 
 # default window size
 default_window_width = 1500

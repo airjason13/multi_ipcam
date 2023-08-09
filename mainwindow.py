@@ -188,7 +188,7 @@ class MainWindow(object):
         self.adjust_preview_frame()
 
         # test ffmpeg parse stream
-        utils.ffmpeg_utils.rtsp_parser_streaming()
+        utils.ffmpeg_utils.rtsp_parser_streaming(dst_ip='localhost')
         '''preview_frame_pos_x = self.root.winfo_x() + self.right_frame.winfo_x()
         preview_frame_pos_y = self.root.winfo_y() + self.right_frame.winfo_y()
         utils.ffmpeg_utils.x11grab_stream(self.right_frame.winfo_width(), self.right_frame.winfo_height(),
