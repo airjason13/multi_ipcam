@@ -30,22 +30,35 @@ class VideoCanvasFFMpeg(tk.Frame):
         self.video_capture_thread = threading.Thread(target=self.video_capture_process)
         self.video_capture_thread.start()
 
-        self.canvas = tk.Canvas(window, width=self.preview_width, height=self.preview_height)
-        self.canvas.grid(row=_row, column=_column)
+        # self.canvas = tk.Canvas(window, width=self.preview_width, height=self.preview_height)
+        # self.canvas.grid(row=_row, column=_column)
+        self.label = tk.Label(window, width=self.preview_width, height=self.preview_height)
+        self.label.grid(row=_row, column=_column)
         self.delay = 60
         self.start_canvas_refresh()
 
     def video_capture_process(self):
         scale_factor = "scale=" + str(self.preview_width) + ":" + str(self.preview_height)
-        command = [FFMPEG_BIN,
-                   '-rtsp_transport', 'tcp',
-                   '-i', self.video_src,
-                   '-f', 'image2pipe',
-                   '-pix_fmt', 'rgb24',
-                   '-vcodec', 'rawvideo', '-vf', scale_factor, '-']
+        if 'rtsp' in self.video_src:
+            command = [FFMPEG_BIN,
+                       '-rtsp_transport', 'tcp',
+                       '-i', self.video_src,
+                       '-f', 'image2pipe',
+                       '-pix_fmt', 'rgb24',
+                       '-vcodec', 'rawvideo', '-vf', scale_factor, '-']
+        else:
+            command = [FFMPEG_BIN,
+                       '-hwaccel', 'auto',
+                       '-stream_loop', '-1',
+                       '-re',
+                       '-i', self.video_src,
+                       '-f', 'image2pipe',
+                       '-pix_fmt', 'rgb24',
+                       '-vcodec', 'rawvideo', '-vf', scale_factor, '-']
         log.debug("ffmpeg cmd : %s", command)
         pipe = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10 ** 8)
         while self.video_capture_running is True:
+            try:
                 self.raw_image = pipe.stdout.read(self.preview_width * self.preview_height * 3)
                 # transform the byte read into a numpy array
                 image = numpy.fromstring(self.raw_image, dtype='uint8')
@@ -55,8 +68,11 @@ class VideoCanvasFFMpeg(tk.Frame):
                 # assign new frame
                 self.video_capture_raw_image = image # Already resize anc cvtColor
 
+            except Exception as e:
+                log.debug("%s", e)
+
                 # sleep for next frame
-                time.sleep(1 / self.video_src_fps)
+            time.sleep(1 / self.video_src_fps)
 
         print("[Error] exit video_capture_process")
 
@@ -75,14 +91,17 @@ class VideoCanvasFFMpeg(tk.Frame):
 
     def video_loop(self):
         if self.video_capture_running is True and self.video_capture_raw_image is not None:
-            # self.image = Image.fromarray(self.video_capture_frame)
-            # self.photo = ImageTk.PhotoImage(image=self.image)
+            # pass
+            self.image = None
+            self.photo = None
+
             self.image = Image.fromarray(self.video_capture_raw_image)
             self.photo = ImageTk.PhotoImage(image=self.image)
 
-            self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
+            # self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
+            self.label.configure(image=self.photo)
 
         else:
             print("[Error] video_capture_ret = False")
 
-        self.canvas.after(self.delay, self.video_loop)
+        self.label.after(self.delay, self.video_loop)

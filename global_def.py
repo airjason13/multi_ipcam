@@ -1,12 +1,15 @@
+import os
 from enum import Enum
 import utils.log_utils
 import utils.net_utils
 
 APP_NAME = "multi_ipcam"
 
+log = utils.log_utils.logging_init(__file__)
+
 str_blank = " "
 
-log = utils.log_utils.logging_init(__file__)
+NONE_IPCAM_PREVIEW_SRC = os.getcwd() + "/material/error_animation.mp4"
 
 # Machine Network Interface Name
 Network_Interface_Name = "enp8s0"

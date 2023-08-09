@@ -94,18 +94,26 @@ class MainWindow(object):
         return True
 
     def ping_ipv4(self, n):
+        if self.ip is None:
+            self.list_ping_ipv4[int(n)] = "IP Not Exists"
+            return
         tmp_ip = self.ip.split(".")
+
         ip = tmp_ip[0] + "." + tmp_ip[1] + "." + tmp_ip[2] + "." + n
 
         process = os.popen("nc -vz -w 1 " + ip + " " + "554 2>&1")
         ret = process.read()
         process.close()
-        # log.debug("ping ipv4 %s, ret :%s", ip, ret)
-        if "succeeded" in ret:  # ip exist and could ping
-            self.list_ping_ipv4[int(n)] = ip
-            log.debug("ping ipv4 %s, ret :%s", ip, ret)
-        else:
-            self.list_ping_ipv4[int(n)] = "IP Not Exists"
+        try:
+            # log.debug("ping ipv4 %s, ret :%s", ip, ret)
+            if "succeeded" in ret:  # ip exist and could ping
+                self.list_ping_ipv4[int(n)] = ip
+                log.debug("ping ipv4 %s, ret :%s", ip, ret)
+            else:
+                self.list_ping_ipv4[int(n)] = "IP Not Exists"
+        except Exception as e:
+            pass
+            # log.debug("%s", e)
 
     def start_ping_ipv4(self):
         log.debug("start_ping")
@@ -202,7 +210,11 @@ class MainWindow(object):
 
         self.right_frame.config(width=1280, height=720)
 
-        log.debug("self.right_frame.winfo_width() = %d", self.right_frame.winfo_width())
+        while True:
+            log.debug("self.right_frame.winfo_width() = %d", self.right_frame.winfo_width())
+            if self.right_frame.winfo_width() == 1280:
+                break
+
 
         # calculate preview canvas size
         max_row, max_column = self.get_max_row_and_column()
@@ -211,23 +223,37 @@ class MainWindow(object):
         tmp_row = 0
         tmp_column = 0
         # start preview here??
-        for n in range(len(self.list_alive_ip_cam)):
-            self.list_alive_ip_cam[n].start_get_device_info()
-            self.list_alive_ip_cam[n].get_media2_service()
-            self.list_alive_ip_cam[n].get_cam_encoder_configuration()
+        # if len(self.list_alive_ip_cam)  is zero
+        if len(self.list_alive_ip_cam) == 0:
+            log.debug("No IpCam connected")
+            for n in range(4):
+                vid1 = VideoCanvasFFMpeg(self.right_frame, 0, NONE_IPCAM_PREVIEW_SRC,
+                                         preview_width=tmp_canvas_preview_width,
+                                         preview_height=tmp_canvas_preview_height,
+                                         _row=tmp_row, _column=tmp_column)
+                tmp_column += 1
+                if tmp_column >= max_column:
+                    tmp_row += 1
+                    tmp_column = 0
+                self.ip_cam_vid.append(vid1)
+        else:
+            for n in range(len(self.list_alive_ip_cam)):
+                self.list_alive_ip_cam[n].start_get_device_info()
+                self.list_alive_ip_cam[n].get_media2_service()
+                self.list_alive_ip_cam[n].get_cam_encoder_configuration()
 
-            vid1 = VideoCanvasFFMpeg(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
-                               preview_width=tmp_canvas_preview_width, preview_height=tmp_canvas_preview_height,
-                               _row=tmp_row, _column=tmp_column)
-            '''vid1 = VideoCanvas(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
-                                     preview_width=tmp_canvas_preview_width, preview_height=tmp_canvas_preview_height,
-                                     _row=tmp_row, _column=tmp_column)'''
+                vid1 = VideoCanvasFFMpeg(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
+                                   preview_width=tmp_canvas_preview_width, preview_height=tmp_canvas_preview_height,
+                                   _row=tmp_row, _column=tmp_column)
+                '''vid1 = VideoCanvas(self.right_frame, 0, self.list_alive_ip_cam[n].get_stream_uris()[1],
+                                         preview_width=tmp_canvas_preview_width, preview_height=tmp_canvas_preview_height,
+                                         _row=tmp_row, _column=tmp_column)'''
 
-            tmp_column += 1
-            if tmp_column >= max_column:
-                tmp_row += 1
-                tmp_column = 0
-            self.ip_cam_vid.append(vid1)
+                tmp_column += 1
+                if tmp_column >= max_column:
+                    tmp_row += 1
+                    tmp_column = 0
+                self.ip_cam_vid.append(vid1)
 
     def get_preview_canvas_width_height(self, max_row, max_column):
         right_frame_width = self.right_frame.winfo_width()
@@ -240,7 +266,10 @@ class MainWindow(object):
             return int(right_frame_width / max_column), int(right_frame_height / max_row)
 
     def get_max_row_and_column(self):
-        length = len(self.list_alive_ip_cam)
+        if len(self.list_alive_ip_cam) == 0:
+            length = 4
+        else:
+            length = len(self.list_alive_ip_cam)
         if length <= 1:
             return 1, 1
         for i in range(8):
