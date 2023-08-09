@@ -41,6 +41,9 @@ class VideoCanvasFFMpeg(tk.Frame):
         scale_factor = "scale=" + str(self.preview_width) + ":" + str(self.preview_height)
         if 'rtsp' in self.video_src:
             command = [FFMPEG_BIN,
+                       '-hide_banner',
+                       '-loglevel', 'error',
+                       '-hwaccel', 'auto',
                        '-rtsp_transport', 'tcp',
                        '-i', self.video_src,
                        '-f', 'image2pipe',
@@ -48,6 +51,8 @@ class VideoCanvasFFMpeg(tk.Frame):
                        '-vcodec', 'rawvideo', '-vf', scale_factor, '-']
         else:
             command = [FFMPEG_BIN,
+                       '-hide_banner',
+                       '-loglevel', 'error',
                        '-hwaccel', 'auto',
                        '-stream_loop', '-1',
                        '-re',
@@ -69,7 +74,8 @@ class VideoCanvasFFMpeg(tk.Frame):
                 self.video_capture_raw_image = image # Already resize anc cvtColor
 
             except Exception as e:
-                log.debug("%s", e)
+                pass
+                # log.debug("%s", e)
 
                 # sleep for next frame
             time.sleep(1 / self.video_src_fps)
@@ -102,6 +108,7 @@ class VideoCanvasFFMpeg(tk.Frame):
             self.label.configure(image=self.photo)
 
         else:
-            print("[Error] video_capture_ret = False")
+            pass
+            # log.debug("video_capture_ret = False")
 
         self.label.after(self.delay, self.video_loop)

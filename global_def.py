@@ -18,6 +18,7 @@ Network_Interface_Name = "enp8s0"
 default_window_width = 1500
 default_window_height = 800
 
+
 # default ipcam preview size and label size
 default_image_width = 640
 default_image_height = 480

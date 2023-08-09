@@ -14,6 +14,9 @@ def kill_all_ffmpeg_process():
 def rtsp_parser_streaming(src_ip=Parser_Src_Ip, src_port=Parser_Src_Port,
                           dst_ip=Parser_Dst_Ip, dst_port=Parser_Dst_Port, stream_name=Default_Rtsp_Stream_Name,
                           video_bitrate=Default_Video_BitRate):
+    if src_ip is None or src_port is None or dst_ip is None or dst_port is None:
+        log.debug("ip/port cannot be none")
+        return None
     ffmpeg_cmd = ("ffmpeg -re -i udp://" + src_ip + ":" + src_port + "?overrun_nonfatal=1"
                   + str_blank + "-b:v" + str_blank + video_bitrate + str_blank
                   + "-f rtsp" + str_blank + "rtsp://" + dst_ip + ":" + dst_port + "/" + stream_name + str_blank + "&")
